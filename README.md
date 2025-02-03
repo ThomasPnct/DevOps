@@ -14,5 +14,7 @@ ENV POSTGRES_DB=db \
    POSTGRES_PASSWORD=pwd
 
 COPY *.sql /docker-entrypoint-initdb.d
+
 docker build -t ThomasPct/databse .
+
 docker run -v ./data:/var/lib/postgresql/data  --net=app-network  --name postgres ThomasPct/databse
