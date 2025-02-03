@@ -18,3 +18,6 @@ COPY *.sql /docker-entrypoint-initdb.d
 docker build -t ThomasPct/databse .
 
 docker run -v ./data:/var/lib/postgresql/data  --net=app-network  --name postgres ThomasPct/databse
+
+## 1-4 
+Cela permet d'avoir des images docker moins lourdes et de construire une image docker a partir d'autres images.
