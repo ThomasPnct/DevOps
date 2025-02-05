@@ -49,9 +49,18 @@ ENV MYAPP_HOME=/opt/myapp
 ### Définir le répertoire de travail
 WORKDIR $MYAPP_HOME
 
+
 ### Copier le fichier .jar généré lors de la phase de build
 COPY --from=myapp-build $MYAPP_HOME/target/*.jar $MYAPP_HOME/myapp.jar
 
 ### Exécuter l'application avec Java
 ENTRYPOINT ["java", "-jar", "myapp.jar"]
+
+### 1-5 Why do we need a reverse proxy?
+
+sécurité : SSL
+
+haute disponibilité : répartition de la charge
+
+authentification/autorisation centralisée : un serveur pour toutes les applications
 
