@@ -315,3 +315,14 @@ jobs:
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/tp-devops-http:latest  # Docker image tag
           push: ${{ github.ref == 'refs/heads/main' }}  # Push image only if commit is on the 'main' branch
 ```
+### 3-1 Document your inventory and base commands
+
+```
+all:
+ vars:
+   ansible_user: admin
+   ansible_ssh_private_key_file: ../id_rsa
+ children:
+   prod:
+     hosts: thomas.poncet.takima.cloud
+```
