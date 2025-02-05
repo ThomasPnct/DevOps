@@ -348,7 +348,8 @@ root@DESKTOP-2KODCED:/tp-devops-correction-docker/ansible# ssh -i id_rsa admin@t
     - app
     - proxy
 ```
-[Up---
+
+---
 # tasks file for docker
 
 - name: Install Docker dependencies
@@ -380,4 +381,4 @@ root@DESKTOP-2KODCED:/tp-devops-correction-docker/ansible# ssh -i id_rsa admin@t
   service:
     name: docker
     state: started
-    enabled: yesloading main.yml…]()
+    enabled: yes
