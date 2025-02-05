@@ -326,3 +326,6 @@ all:
    prod:
      hosts: thomas.poncet.takima.cloud
 ```
+```
+root@DESKTOP-2KODCED:/tp-devops-correction-docker/ansible# ssh -i id_rsa admin@thomas.poncet.takima.cloud
+```
