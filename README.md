@@ -197,3 +197,121 @@ jobs:
         run: mvn clean verify
         working-directory: simple-api
 ```
+### 2-3 For what purpose do we need to push docker images?
+
+Pousser des images Docker permet de partager et déployer facilement son application sur différents serveurs ou machines. Cela permet aussi de faire en sorte que tout le monde utilise la même version de l'application.
+
+### 2-4 Document your quality gate configuration.
+
+```
+name: "SonarQube"
+on:
+  push:
+    branches:
+      - main 
+      - develop 
+  pull_request:
+    branches:
+      - main
+      - develop
+jobs:
+  test-backend:
+    runs-on: ubuntu-22.04
+    steps:
+      # Checkout your GitHub code using actions/checkout@v2.5.0
+      - uses: actions/checkout@v4
+
+      # Set up JDK21 using actions/setup-java@v3 with the correct distribution
+      - name: Set up JDK21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'corretto'  # You can replace this with your preferred distribution
+
+      # Build and test your app with Maven
+      - name: Build and test with Maven
+        run: mvn clean verify
+        working-directory: simple-api
+  build:
+    name: Build and analyze
+    runs-on: ubuntu-latest
+    needs: test-backend
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: 21
+          distribution: 'corretto' # Alternative distribution options are available.
+      - name: Cache SonarQube packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+      - name: Cache Maven packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+      - name: Build and analyze
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=ThomasPnct_tp-devops-correction-docker 
+        working-directory: simple-api
+```
+```
+name: "Docker Hub"
+
+on:
+  workflow_run:
+    workflows: ["SonarQube"]
+    types: [completed]
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  # define job to build and publish docker image
+  build-and-push-docker-image:
+    runs-on: ubuntu-22.04  # Specifies the environment to run the job on (Ubuntu 22.04)
+    if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main' # Ensure deploy only runs for main
+    
+      
+    steps:
+      - name: Checkout repository  # Checkout the code from the repository
+        uses: actions/checkout@v4
+
+      - name: Login to Docker Hub  # Log in to Docker Hub using credentials stored in secrets
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}  # Docker Hub username from secrets
+          password: ${{ secrets.DOCKERHUB_TOKEN }}  # Docker Hub token from secrets
+
+      # Build and push the backend Docker image
+      - name: Build and push backend image
+        uses: docker/build-push-action@v3
+        with:
+          context: ./simple-api  # Directory containing the backend code
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/tp-devops-backend:latest  # Docker image tag
+          push: ${{ github.ref == 'refs/heads/main' }}  # Push image only if commit is on the 'main' branch
+
+      # Build and push the database Docker image
+      - name: Build and push database image
+        uses: docker/build-push-action@v3
+        with:
+          context: ./database  # Directory containing the database code
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/tp-devops-db:latest  # Docker image tag
+          push: ${{ github.ref == 'refs/heads/main' }}  # Push image only if commit is on the 'main' branch
+
+      # Build and push the HTTP Docker image
+      - name: Build and push http-server image
+        uses: docker/build-push-action@v3
+        with:
+          context: ./http-server  # Directory containing the HTTP service code
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/tp-devops-http:latest  # Docker image tag
+          push: ${{ github.ref == 'refs/heads/main' }}  # Push image only if commit is on the 'main' branch
+```
