@@ -348,7 +348,7 @@ root@DESKTOP-2KODCED:/tp-devops-correction-docker/ansible# ssh -i id_rsa admin@t
     - app
     - proxy
 ```
-
+### 3-3
 ---
 ```
 # tasks file for docker
@@ -383,4 +383,65 @@ root@DESKTOP-2KODCED:/tp-devops-correction-docker/ansible# ssh -i id_rsa admin@t
     name: docker
     state: started
     enabled: yes
+```
+```
+# tasks file for app
+- name: Launch application container
+  docker_container:
+    name: simple-api
+    image: thomaspct/tp-devops-backend:latest 
+    pull: yes
+    env_file: /home/admin/.env
+    networks:
+      - name: app_database_network
+      - name: proxy_app_network
+```
+```
+# tasks file for database
+---
+- name: Launch database container
+  docker_container:
+    name: db
+    image: thomaspct/tp-devops-db:latest 
+    state: started
+    pull: yes
+    env_file: /home/admin/.env
+    networks:
+      - name: app_database_network
+    container_default_behavior: compatibility
+    networks_cli_compatible: no
+    volumes:
+      - db_data:/var/lib/postgresql/data
+```
+```
+# tasks file for proxy
+---
+- name: Launch proxy container
+  docker_container:
+    name: http
+    image: thomaspct/tp-devops-http:latest 
+    pull: yes
+    ports:
+      - "80:80" 
+    networks:
+      - name: proxy_app_network
+```
+```
+# tasks file for network
+- name: Create app to database network
+  docker_network:
+    name: app_database_network
+
+- name: Create proxy to app network
+  docker_network:
+    name: proxy_app_network
+```
+```
+# tasks file for env
+---
+# tasks file for roles/env
+- name: Copy .env file to the server
+  copy:
+    src: .env
+    dest: /home/admin/.env
 ```
