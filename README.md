@@ -122,4 +122,44 @@ authentification/autorisation centralisée : un serveur pour toutes les applicat
   ```bash
   docker-compose restart
   ```
+## 1-8
+```
+services:
+  java:
+    container_name: backend
+    build:
+      context: ./java
+    networks:
+      - app-network-2
+    depends_on:
+      - postgres
 
+  postgres:
+    build: database
+    environment:
+      POSTGRES_DB: db
+      POSTGRES_USER: usr
+      POSTGRES_PASSWORD: pwd
+    volumes:
+      - data:/var/lib/postgresql/data
+    networks:
+      - app-network-2
+
+  http:
+    build:
+      context: ./http
+    container_name: http
+    ports:
+      - "80:80"
+    networks:
+      - app-network-2
+    depends_on:
+      - java
+
+networks:
+  app-network-2:
+    name: app-network-2
+
+volumes:
+  data:
+```
