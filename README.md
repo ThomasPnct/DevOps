@@ -331,6 +331,7 @@ root@DESKTOP-2KODCED:/tp-devops-correction-docker/ansible# ssh -i id_rsa admin@t
 ```
 ### 3-2 Document your inventory and base commands
 
+```
 - hosts: all
   gather_facts: true
   become: true
@@ -346,4 +347,4 @@ root@DESKTOP-2KODCED:/tp-devops-correction-docker/ansible# ssh -i id_rsa admin@t
     - database
     - app
     - proxy
-
+```
