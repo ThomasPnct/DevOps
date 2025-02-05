@@ -350,6 +350,7 @@ root@DESKTOP-2KODCED:/tp-devops-correction-docker/ansible# ssh -i id_rsa admin@t
 ```
 
 ---
+```
 # tasks file for docker
 
 - name: Install Docker dependencies
@@ -382,3 +383,4 @@ root@DESKTOP-2KODCED:/tp-devops-correction-docker/ansible# ssh -i id_rsa admin@t
     name: docker
     state: started
     enabled: yes
+```
