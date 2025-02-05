@@ -167,3 +167,33 @@ volumes:
 ### 2-1 What are testcontainers?
 
 **Testcontainers** est une bibliothèque Java qui permet de créer des instances temporaires et jetables de bases de données, de courtiers de messages ou d'autres services via des conteneurs Docker, afin de faciliter les tests d'intégration.  
+
+### 2-2 
+
+```
+name: CI devops 2025
+on:
+  #to begin you want to launch this job in main and develop
+  push:
+    branches: main 
+  pull_request:
+
+jobs:
+  test-backend:
+    runs-on: ubuntu-22.04
+    steps:
+      # Checkout your GitHub code using actions/checkout@v2.5.0
+      - uses: actions/checkout@v4
+
+      # Set up JDK 21 using actions/setup-java@v3 with the correct distribution
+      - name: Set up JDK21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'corretto'  # You can replace this with your preferred distribution
+
+      # Build and test your app with Maven
+      - name: Build and test with Maven
+        run: mvn clean verify
+        working-directory: simple-api
+```
